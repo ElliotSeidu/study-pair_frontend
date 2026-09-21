@@ -1,0 +1,121 @@
+import { useMemo, useState } from "react";
+import { Search, ArrowRight, Filter, ChevronDown } from "lucide-react";
+import AppLayout from "../components/layout/AppLayout";
+import TutorCard from "../components/TutorCard";
+import { MOCK_TUTORS } from "../data/tutors";
+
+const LEVELS = ["100", "200", "300", "400"];
+
+export default function BrowseTutors() {
+  const [query, setQuery] = useState("");
+  const [activeLevels, setActiveLevels] = useState(["100"]);
+
+  const toggleLevel = (lvl) => {
+    setActiveLevels((prev) =>
+      prev.includes(lvl) ? prev.filter((l) => l !== lvl) : [...prev, lvl]
+    );
+  };
+
+  const filteredTutors = useMemo(() => {
+    return MOCK_TUTORS.filter((t) => {
+      const matchesLevel = activeLevels.length === 0 || activeLevels.includes(String(t.level));
+      const q = query.trim().toLowerCase();
+      const matchesQuery =
+        !q ||
+        t.name.toLowerCase().includes(q) ||
+        t.program.toLowerCase().includes(q) ||
+        t.tags.some((tag) => tag.toLowerCase().includes(q));
+      return matchesLevel && matchesQuery;
+    });
+  }, [query, activeLevels]);
+
+  return (
+    <AppLayout>
+      <div className="animate-fade-up pt-6 md:pt-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-6">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-on-surface dark:text-white md:text-4xl">
+              Find a Tutor
+            </h1>
+            <p className="mt-2 text-lg text-neutral-gray dark:text-white/60">
+              Connect with peers to boost your academic performance.
+            </p>
+          </div>
+
+          {/* Search */}
+          <div className="relative w-full max-w-2xl">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-gray dark:text-white/40" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              type="text"
+              placeholder="Search for courses, subjects, or tutor names..."
+              className="w-full rounded-2xl border border-surface-container-highest bg-surface-container-lowest py-4 pl-12 pr-14
+                text-on-surface shadow-sm outline-none transition-all placeholder:text-neutral-gray
+                focus:border-transparent focus:ring-2 focus:ring-student-teal
+                dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30"
+            />
+            <button
+              aria-label="Search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-student-teal p-2.5 text-white shadow-sm transition-colors hover:bg-primary"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="mr-1 text-sm font-medium text-neutral-gray dark:text-white/50">Filters:</span>
+            <div className="flex flex-wrap gap-2">
+              {LEVELS.map((lvl) => {
+                const active = activeLevels.includes(lvl);
+                return (
+                  <button
+                    key={lvl}
+                    onClick={() => toggleLevel(lvl)}
+                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-150 ${
+                      active
+                        ? "border-student-teal bg-student-teal/10 text-student-teal dark:border-primary-fixed-dim dark:bg-primary-fixed-dim/10 dark:text-primary-fixed-dim"
+                        : "border-surface-container-highest bg-surface-container-lowest text-neutral-gray hover:border-student-teal hover:text-student-teal dark:border-white/10 dark:bg-white/5 dark:text-white/50 dark:hover:border-primary-fixed-dim dark:hover:text-primary-fixed-dim"
+                    }`}
+                  >
+                    {lvl} Level
+                  </button>
+                );
+              })}
+            </div>
+
+            <button className="ml-auto flex items-center gap-2 rounded-lg border border-surface-container-highest bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface shadow-sm transition-colors hover:bg-surface-container-low dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+              <Filter className="h-4 w-4" />
+              All Courses
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Tutor grid */}
+        {filteredTutors.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredTutors.map((tutor) => (
+              <TutorCard key={tutor.id} tutor={tutor} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-outline-variant py-16 text-center dark:border-white/10">
+            <p className="font-medium text-on-surface dark:text-white">No tutors match your filters</p>
+            <p className="text-sm text-neutral-gray dark:text-white/50">Try clearing a level filter or search term.</p>
+          </div>
+        )}
+
+        {filteredTutors.length > 0 && (
+          <div className="mt-8 flex justify-center pb-4">
+            <button className="flex items-center gap-2 rounded-xl border border-surface-container-highest bg-surface-container-lowest px-6 py-3 text-sm font-medium text-on-surface shadow-sm transition-colors hover:bg-surface-container-low dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+              Load More Tutors <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </AppLayout>
+  );
+}
