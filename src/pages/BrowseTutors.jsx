@@ -1,12 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Filter } from "lucide-react";
 import AppLayout from "../components/layout/AppLayout";
 import TutorCard from "../components/TutorCard";
 import { MOCK_TUTORS } from "../data/tutors";
+import { useTutorMode } from "../context/TutorModeContext";
 
 const LEVELS = ["100", "200", "300", "400"];
 
 export default function BrowseTutors() {
+  const { isTutorMode } = useTutorMode();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isTutorMode) {
+      navigate("/tutor/requests", { replace: true });
+    }
+  }, [isTutorMode, navigate]);
+
   const [query, setQuery] = useState("");
   const [activeLevels, setActiveLevels] = useState(["100"]);
   const [selectedCourse, setSelectedCourse] = useState("all");

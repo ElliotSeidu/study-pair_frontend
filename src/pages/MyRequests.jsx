@@ -1,8 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import RequestCard from "../components/RequestCard";
 import SessionDetailsModal from "../components/SessionDetailsModal";
 import { getRequests, updateRequestStatus } from "../lib/store";
+import { useTutorMode } from "../context/TutorModeContext";
 import { Inbox } from "lucide-react";
 
 const TABS = [
@@ -11,6 +13,15 @@ const TABS = [
 ];
 
 export default function MyRequests() {
+  const { isTutorMode } = useTutorMode();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isTutorMode) {
+      navigate("/tutor/requests", { replace: true });
+    }
+  }, [isTutorMode, navigate]);
+
   const [activeTab, setActiveTab] = useState("active");
   const [requests, setRequests] = useState(() => getRequests());
   const [selectedSession, setSelectedSession] = useState(null);

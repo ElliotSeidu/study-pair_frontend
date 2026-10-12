@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { TutorModeProvider } from "./context/TutorModeContext";
@@ -50,6 +50,7 @@ export default function App() {
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
+              <Route path="/tutor" element={<Navigate to="/tutor/requests" replace />} />
               <Route path="/tutor/courses" element={<ProtectedRoute><TutorMyCourses /></ProtectedRoute>} />
               <Route path="/tutor/availability" element={<ProtectedRoute><TutorMyAvailability /></ProtectedRoute>} />
               <Route path="/tutor/requests" element={<ProtectedRoute><TutorIncomingRequests /></ProtectedRoute>} />

@@ -3,28 +3,38 @@ import { useState, useEffect } from "react";
 let deferredPrompt = null;
 
 export function registerServiceWorker() {
-  if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((reg) => {
-          // Check for updates
-          reg.onupdatefound = () => {
-            const installingWorker = reg.installing;
-            if (installingWorker) {
-              installingWorker.onstatechange = () => {
-                if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  console.log("New StudyPair version available.");
-                }
-              };
-            }
-          };
-        })
-        .catch((err) => {
-          console.warn("ServiceWorker registration failed:", err);
-        });
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+  // In development, unregister any active workers to avoid intercepting Vite module requests
+  if (import.meta.env.DEV) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
     });
+    return;
   }
+
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => {
+        // Check for updates
+        reg.onupdatefound = () => {
+          const installingWorker = reg.installing;
+          if (installingWorker) {
+            installingWorker.onstatechange = () => {
+              if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+                console.log("New StudyPair version available.");
+              }
+            };
+          }
+        };
+      })
+      .catch((err) => {
+        console.warn("ServiceWorker registration failed:", err);
+      });
+  });
 }
 
 /**

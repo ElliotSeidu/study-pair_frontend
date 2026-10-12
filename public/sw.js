@@ -43,6 +43,17 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  const url = new URL(event.request.url);
+  // Never intercept Vite dev server requests, source code modules, or dev endpoints
+  if (
+    url.pathname.startsWith("/src/") ||
+    url.pathname.startsWith("/@") ||
+    url.pathname.includes("node_modules") ||
+    (url.hostname === "localhost" && url.port === "5173")
+  ) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {

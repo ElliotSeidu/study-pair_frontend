@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const TutorModeContext = createContext(null);
 
@@ -8,11 +8,21 @@ export function TutorModeProvider({ children }) {
     return localStorage.getItem("studypair-mode") === "tutor";
   });
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     localStorage.setItem("studypair-mode", isTutorMode ? "tutor" : "student");
     document.documentElement.setAttribute("data-mode", isTutorMode ? "tutor" : "student");
   }, [isTutorMode]);
+
+  // If navigating into any tutor route, automatically synchronize mode to tutor
+  useEffect(() => {
+    if (location.pathname.startsWith("/tutor")) {
+      if (!isTutorMode) {
+        setIsTutorMode(true);
+      }
+    }
+  }, [location.pathname, isTutorMode]);
 
   const toggleMode = useCallback(() => {
     setIsTutorMode((prev) => {

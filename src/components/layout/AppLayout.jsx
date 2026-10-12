@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Search, ListTodo, ClipboardCheck, Bell, User, Menu, X, BookMarked, CalendarClock, Inbox, Download, ShieldAlert } from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import { useTutorMode } from "../../context/TutorModeContext";
@@ -25,6 +25,7 @@ const TUTOR_NAV = [
 
 export default function AppLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
   const { user } = useAuth();
   const { isTutorMode, toggleMode } = useTutorMode();
   const { canInstall, triggerInstall } = usePwaInstall();
@@ -68,15 +69,20 @@ export default function AppLayout({ children }) {
               key={to}
               to={to}
               onClick={() => setDrawerOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 active:opacity-70 ${
-                  isActive
+              className={({ isActive }) => {
+                const isSelected =
+                  isActive ||
+                  (isTutorMode && (location.pathname === "/tutors" || location.pathname === "/tutor") && to === "/tutor/requests") ||
+                  (!isTutorMode && location.pathname === "/" && to === "/tutors");
+
+                return `flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 active:opacity-70 ${
+                  isSelected
                     ? isTutorMode
                       ? "border-l-4 border-tutor-purple bg-tutor-purple/15 font-semibold text-tutor-purple shadow-xs dark:border-tutor-purple dark:bg-tutor-purple/25 dark:text-purple-300"
                       : "border-l-4 border-student-teal bg-student-teal/15 font-semibold text-student-teal shadow-xs dark:border-primary-fixed-dim dark:bg-student-teal/25 dark:text-primary-fixed-dim"
                     : "text-on-surface-variant hover:bg-surface-container-high dark:text-white/70 dark:hover:bg-white/5"
-                }`
-              }
+                }`;
+              }}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               <span className="text-base font-semibold">{label}</span>

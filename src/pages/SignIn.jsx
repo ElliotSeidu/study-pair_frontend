@@ -7,6 +7,7 @@ import FormField from "../components/FormField";
 import PasswordField from "../components/PasswordField";
 import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
+import { useTutorMode } from "../context/TutorModeContext";
 
 const KNUST_EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@st\.knust\.edu\.gh$/i;
 
@@ -15,14 +16,25 @@ export default function SignIn() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const navigate = useNavigate();
   const { login, signup } = useAuth();
+  const { isTutorMode, switchToTutorMode, switchToStudentMode } = useTutorMode();
 
   const signInForm = useForm({ mode: "onBlur" });
   const signUpForm = useForm({ mode: "onBlur" });
 
   const onSignIn = async (data) => {
     try {
-      await login(data);
-      navigate("/tutors");
+      const loggedInUser = await login(data);
+      if (loggedInUser?.role === "admin" || loggedInUser?.email?.startsWith("admin@")) {
+        navigate("/admin");
+      } else if (loggedInUser?.role === "tutor") {
+        switchToTutorMode();
+      } else if (loggedInUser?.role === "student") {
+        switchToStudentMode();
+      } else if (isTutorMode) {
+        navigate("/tutor/requests");
+      } else {
+        navigate("/tutors");
+      }
     } catch (err) {
       signInForm.setError(err.field || "email", { type: "manual", message: err.message });
     }
