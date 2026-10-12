@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, ArrowRight, Filter, ChevronDown } from "lucide-react";
+import { Search, ArrowRight, Filter } from "lucide-react";
 import AppLayout from "../components/layout/AppLayout";
 import TutorCard from "../components/TutorCard";
 import { MOCK_TUTORS } from "../data/tutors";
@@ -9,6 +9,14 @@ const LEVELS = ["100", "200", "300", "400"];
 export default function BrowseTutors() {
   const [query, setQuery] = useState("");
   const [activeLevels, setActiveLevels] = useState(["100"]);
+  const [selectedCourse, setSelectedCourse] = useState("all");
+
+  // Extract all unique course tags from tutors
+  const availableCourses = useMemo(() => {
+    const set = new Set();
+    MOCK_TUTORS.forEach((t) => t.tags?.forEach((tag) => set.add(tag)));
+    return Array.from(set).sort();
+  }, []);
 
   const toggleLevel = (lvl) => {
     setActiveLevels((prev) =>
@@ -16,18 +24,25 @@ export default function BrowseTutors() {
     );
   };
 
+  const handleResetFilters = () => {
+    setQuery("");
+    setActiveLevels([]);
+    setSelectedCourse("all");
+  };
+
   const filteredTutors = useMemo(() => {
     return MOCK_TUTORS.filter((t) => {
       const matchesLevel = activeLevels.length === 0 || activeLevels.includes(String(t.level));
+      const matchesCourse = selectedCourse === "all" || t.tags.includes(selectedCourse);
       const q = query.trim().toLowerCase();
       const matchesQuery =
         !q ||
         t.name.toLowerCase().includes(q) ||
         t.program.toLowerCase().includes(q) ||
         t.tags.some((tag) => tag.toLowerCase().includes(q));
-      return matchesLevel && matchesQuery;
+      return matchesLevel && matchesCourse && matchesQuery;
     });
-  }, [query, activeLevels]);
+  }, [query, activeLevels, selectedCourse]);
 
   return (
     <AppLayout>
@@ -56,6 +71,15 @@ export default function BrowseTutors() {
                 focus:border-transparent focus:ring-2 focus:ring-student-teal
                 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30"
             />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="absolute right-12 top-1/2 -translate-y-1/2 text-xs font-semibold text-on-surface-variant hover:text-on-surface dark:text-white/50"
+              >
+                Clear
+              </button>
+            )}
             <button
               aria-label="Search"
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-student-teal p-2.5 text-white shadow-sm transition-colors hover:bg-primary"
@@ -86,11 +110,25 @@ export default function BrowseTutors() {
               })}
             </div>
 
-            <button className="ml-auto flex items-center gap-2 rounded-lg border border-surface-container-highest bg-surface-container-lowest px-4 py-2 text-sm font-medium text-on-surface shadow-sm transition-colors hover:bg-surface-container-low dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
-              <Filter className="h-4 w-4" />
-              All Courses
-              <ChevronDown className="h-4 w-4" />
-            </button>
+            {/* Course Filter Dropdown */}
+            <div className="relative ml-auto flex items-center">
+              <div className="flex items-center gap-2 rounded-xl border border-surface-container-highest bg-surface-container-lowest px-3 py-1.5 text-sm font-medium text-on-surface shadow-sm transition-colors dark:border-white/10 dark:bg-dark-surface dark:text-white">
+                <Filter className="h-4 w-4 text-student-teal dark:text-primary-fixed-dim flex-shrink-0" />
+                <select
+                  value={selectedCourse}
+                  onChange={(e) => setSelectedCourse(e.target.value)}
+                  className="bg-transparent text-sm font-medium outline-none cursor-pointer pr-2 text-on-surface dark:text-white"
+                  aria-label="Filter by course"
+                >
+                  <option value="all" className="dark:bg-dark-surface">All Courses</option>
+                  {availableCourses.map((c) => (
+                    <option key={c} value={c} className="dark:bg-dark-surface">
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -102,17 +140,23 @@ export default function BrowseTutors() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-outline-variant py-16 text-center dark:border-white/10">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-outline-variant py-16 text-center dark:border-white/10">
             <p className="font-medium text-on-surface dark:text-white">No tutors match your filters</p>
-            <p className="text-sm text-neutral-gray dark:text-white/50">Try clearing a level filter or search term.</p>
+            <p className="text-sm text-neutral-gray dark:text-white/50">Try clearing level, course filters, or search terms.</p>
+            <button
+              onClick={handleResetFilters}
+              className="mt-2 rounded-xl bg-student-teal px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary"
+            >
+              Reset All Filters
+            </button>
           </div>
         )}
 
         {filteredTutors.length > 0 && (
-          <div className="mt-8 flex justify-center pb-4">
-            <button className="flex items-center gap-2 rounded-xl border border-surface-container-highest bg-surface-container-lowest px-6 py-3 text-sm font-medium text-on-surface shadow-sm transition-colors hover:bg-surface-container-low dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
-              Load More Tutors <ChevronDown className="h-4 w-4" />
-            </button>
+          <div className="mt-8 flex flex-col items-center gap-2 justify-center pb-4 text-center">
+            <p className="text-xs text-neutral-gray dark:text-white/40">
+              Showing {filteredTutors.length} verified KNUST peer tutor{filteredTutors.length === 1 ? "" : "s"}
+            </p>
           </div>
         )}
       </div>

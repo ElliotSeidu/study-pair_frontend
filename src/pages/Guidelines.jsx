@@ -1,4 +1,4 @@
-import { BookCheck, ShieldAlert, Users, Clock, MapPin, MessageSquare } from "lucide-react";
+import { BookCheck, ShieldAlert, Users, Clock, MapPin, MessageSquare, AlertCircle } from "lucide-react";
 import PublicLayout from "../components/layout/PublicLayout";
 
 export default function Guidelines() {
@@ -86,7 +86,7 @@ export default function Guidelines() {
         </div>
 
         {/* Reporting callout */}
-        {/* <div className="mt-12 flex items-start gap-4 rounded-2xl border border-status-pending/30 bg-status-pending/10 p-6">
+        <div className="mt-12 flex items-start gap-4 rounded-2xl border border-status-pending/30 bg-status-pending/10 p-6">
           <AlertCircle className="h-6 w-6 flex-shrink-0 text-status-pending mt-0.5" />
           <div>
             <h4 className="font-bold text-on-surface dark:text-white">Need to report a guideline violation?</h4>
@@ -98,7 +98,7 @@ export default function Guidelines() {
               . All reports are handled confidentially.
             </p>
           </div>
-        </div> */}
+        </div>
       </div>
     </PublicLayout>
   );

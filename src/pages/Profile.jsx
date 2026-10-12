@@ -116,6 +116,8 @@ export default function Profile() {
               type="tel"
               label="Phone Number (WhatsApp Active)"
               icon={Phone}
+              placeholder="024 XXX XXXX"
+              maxLength={10}
               error={errors.phone}
               {...register("phone", {
                 required: "Phone number is required",

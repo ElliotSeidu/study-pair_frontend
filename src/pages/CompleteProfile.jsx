@@ -50,6 +50,7 @@ export default function CompleteProfile() {
             icon={Phone}
             placeholder="024 XXX XXXX"
             error={errors.phone}
+            maxLength={10}
             {...register("phone", {
               required: "Phone number is required",
               pattern: {

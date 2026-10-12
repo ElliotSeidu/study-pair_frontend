@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Search, ListTodo, ClipboardCheck, Bell, User, Menu, X, BookMarked, CalendarClock, Inbox, Download } from "lucide-react";
+import { Search, ListTodo, ClipboardCheck, Bell, User, Menu, X, BookMarked, CalendarClock, Inbox, Download, ShieldAlert } from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import { useTutorMode } from "../../context/TutorModeContext";
+import { useAuth } from "../../context/AuthContext";
 import { usePwaInstall } from "../../lib/pwa";
 import Logo from "../Logo";
 
@@ -24,8 +25,10 @@ const TUTOR_NAV = [
 
 export default function AppLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { user } = useAuth();
   const { isTutorMode, toggleMode } = useTutorMode();
   const { canInstall, triggerInstall } = usePwaInstall();
+  const isAdmin = user?.role === "admin" || user?.email?.startsWith("admin@");
   const navItems = isTutorMode ? TUTOR_NAV : STUDENT_NAV;
   const activeTextColor = isTutorMode ? "text-tutor-purple" : "text-student-teal";
 
@@ -79,6 +82,17 @@ export default function AppLayout({ children }) {
               <span className="text-base font-semibold">{label}</span>
             </NavLink>
           ))}
+
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              onClick={() => setDrawerOpen(false)}
+              className="mt-2 flex items-center gap-4 rounded-xl border border-admin-blue/30 bg-admin-blue/10 px-4 py-3 text-sm font-semibold text-admin-blue transition-colors hover:bg-admin-blue hover:text-white dark:border-blue-400/30 dark:bg-admin-blue/20 dark:text-blue-300"
+            >
+              <ShieldAlert className="h-5 w-5 flex-shrink-0" />
+              <span className="text-base font-semibold">Admin Portal</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Bottom area: PWA Install & Active Mode Switcher at the bottom of the screen on both small and large screens */}

@@ -10,29 +10,9 @@ import { useAuth } from "../context/AuthContext";
 
 const KNUST_EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@st\.knust\.edu\.gh$/i;
 
-// export default function SignIn() {
-//   const [activeTab, setActiveTab] = useState("signin"); // "signin" | "signup"
-//   const navigate = useNavigate();
-
-//   const signInForm = useForm({ mode: "onBlur" });
-//   const signUpForm = useForm({ mode: "onBlur" });
-
-//   const onSignIn = async (data) => {
-//     await new Promise((r) => setTimeout(r, 800));
-//     console.log("Sign in:", data);
-//     // TODO: POST to your /auth/login endpoint, then navigate on success
-//     navigate("/tutors");
-//   };
-
-//   const onSignUp = async (data) => {
-//     await new Promise((r) => setTimeout(r, 800));
-//     console.log("Create account:", data);
-//     // TODO: POST to your /auth/register endpoint, then send them to finish their profile
-//     navigate("/complete-profile");
-//   };
-
 export default function SignIn() {
   const [activeTab, setActiveTab] = useState("signin");
+  const [forgotOpen, setForgotOpen] = useState(false);
   const navigate = useNavigate();
   const { login, signup } = useAuth();
 
@@ -70,7 +50,7 @@ export default function SignIn() {
       className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-primary-fixed to-surface
         p-4 antialiased transition-colors duration-300 dark:from-on-primary-fixed dark:to-dark-bg md:p-8"
     >
-      <ThemeToggle className="fixed top-0 md:top-0 mb-5" />
+      <ThemeToggle className="fixed right-4 top-4 z-50 md:right-8 md:top-8" />
 
       <main className="w-full max-w-md animate-fade-up">
         <div
@@ -140,9 +120,13 @@ export default function SignIn() {
                 })}
               />
               <div className="-mt-2 flex justify-end">
-                <a href="#" className="text-xs font-medium text-student-teal hover:underline dark:text-primary-fixed-dim">
+                <button
+                  type="button"
+                  onClick={() => setForgotOpen(true)}
+                  className="text-xs font-medium text-student-teal hover:underline dark:text-primary-fixed-dim"
+                >
                   Forgot password?
-                </a>
+                </button>
               </div>
               <button
                 type="submit"
@@ -283,6 +267,39 @@ export default function SignIn() {
           </Link>
         </p>
       </main>
+
+      {/* Forgot Password Modal */}
+      {forgotOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-up"
+          onClick={() => setForgotOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-2xl dark:border-white/10 dark:bg-dark-surface"
+          >
+            <h3 className="font-display text-lg font-bold text-on-surface dark:text-white">
+              Password Reset
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-on-surface-variant dark:text-white/70">
+              StudyPair accounts are linked to your official <strong>@st.knust.edu.gh</strong> university credentials.
+              If you forgot your password, please contact the KNUST UITS student help desk or reach our campus coordinator at{" "}
+              <a href="mailto:support@studypair.knust.edu.gh" className="text-student-teal underline dark:text-primary-fixed-dim">
+                support@studypair.knust.edu.gh
+              </a>.
+            </p>
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setForgotOpen(false)}
+                className="rounded-xl bg-student-teal px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

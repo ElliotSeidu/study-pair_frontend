@@ -3,6 +3,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { TutorModeProvider } from "./context/TutorModeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 import Landing from "./pages/Landing";
 import SignIn from "./pages/SignIn";
@@ -17,6 +18,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Guidelines from "./pages/Guidelines";
 import Privacy from "./pages/Privacy";
+import NotFound from "./pages/NotFound";
 
 import TutorMyCourses from "./pages/tutor/TutorMyCourses";
 import TutorMyAvailability from "./pages/tutor/TutorMyAvailability";
@@ -52,13 +54,18 @@ export default function App() {
               <Route path="/tutor/availability" element={<ProtectedRoute><TutorMyAvailability /></ProtectedRoute>} />
               <Route path="/tutor/requests" element={<ProtectedRoute><TutorIncomingRequests /></ProtectedRoute>} />
 
-              {/* ========================================================================= */}
-              {/* ⚠️ BACKEND DEVELOPER NOTICE: STRICT ADMIN ACCESS CONTROL REQUIRED       */}
-              {/* Ensure that ONLY administrators with verified credentials can access      */}
-              {/* this /admin page. Protect on the server with role-based auth middleware.  */}
-              {/* In the frontend, wrap with <AdminProtectedRoute> once roles are defined.   */}
-              {/* ========================================================================= */}
-              <Route path="/admin" element={<AdminDashboard />} />
+              {/* Protected administrative control plane */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminDashboard />
+                  </AdminProtectedRoute>
+                }
+              />
+
+              {/* 404 Catch-All Route */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </TutorModeProvider>
         </AuthProvider>

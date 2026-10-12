@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MoreVertical, Star, Users, Check } from "lucide-react";
+import { ArrowLeft, Share2, Star, Users, Check } from "lucide-react";
 import { MOCK_TUTORS } from "../data/tutors";
 import ThemeToggle from "../components/ThemeToggle";
 import BookingConfirmModal from "../components/BookingConfirmModal";
 import { addRequest } from "../lib/store";
+import { useAuth } from "../context/AuthContext";
 
 export default function TutorDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const tutor = MOCK_TUTORS.find((t) => t.id === id);
   const [requestedSlots, setRequestedSlots] = useState(new Set());
   const [confirmedBooking, setConfirmedBooking] = useState(null);
-
+  const [copiedLink, setCopiedLink] = useState(false);
 
   if (!tutor) {
     return (
@@ -37,8 +39,10 @@ export default function TutorDetail() {
       course: tutor.tags[0] || tutor.program,
       when: `${day}, ${slot.time}`,
       tutorName: tutor.name,
-      tutorPhone: "0244123456",
+      tutorPhone: tutor.phone || "0244123456",
       tutorColor: tutor.avatarColor,
+      studentName: user?.fullName || "KNUST Student",
+      studentPhone: user?.phone || "0241234567",
       type: slot.type,
       status: "pending",
       format: "in-person",
@@ -48,6 +52,24 @@ export default function TutorDetail() {
     });
   };
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${tutor.name} - StudyPair Tutor`,
+          text: `Check out ${tutor.name}'s peer tutoring sessions on StudyPair KNUST:`,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2500);
+      }
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
     <div className="min-h-screen bg-surface text-on-surface transition-colors duration-300 dark:bg-dark-bg dark:text-white">
       {/* Top bar */}
@@ -55,6 +77,7 @@ export default function TutorDetail() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
+            aria-label="Go back"
             className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:bg-surface-container active:scale-95 dark:text-white/60 dark:hover:bg-white/10"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -63,8 +86,13 @@ export default function TutorDetail() {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <button className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:bg-surface-container active:scale-95 dark:text-white/60 dark:hover:bg-white/10">
-            <MoreVertical className="h-5 w-5" />
+          <button
+            onClick={handleShare}
+            aria-label="Share tutor profile"
+            title={copiedLink ? "Link copied!" : "Share profile"}
+            className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-colors duration-150 hover:bg-surface-container active:scale-95 dark:text-white/60 dark:hover:bg-white/10"
+          >
+            {copiedLink ? <Check className="h-5 w-5 text-status-confirmed" /> : <Share2 className="h-5 w-5" />}
           </button>
         </div>
       </header>
