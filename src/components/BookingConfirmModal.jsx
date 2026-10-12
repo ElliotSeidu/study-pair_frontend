@@ -1,15 +1,32 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Hourglass, CheckCircle2, BookOpen, CalendarDays, Clock, ArrowRight, X } from "lucide-react";
 
 export default function BookingConfirmModal({ booking, onClose }) {
+  useEffect(() => {
+    if (!booking) return;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [booking, onClose]);
+
   if (!booking) return null;
   const { type, course, day, time } = booking; // type: "1-on-1" | "group"
   const isGroup = type === "group";
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overscroll-contain"
       onClick={onClose}
+      onTouchMove={(e) => e.target === e.currentTarget && e.preventDefault()}
     >
       <div
         onClick={(e) => e.stopPropagation()}

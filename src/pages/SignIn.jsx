@@ -9,7 +9,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
 import { useTutorMode } from "../context/TutorModeContext";
 
-const KNUST_EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@st\.knust\.edu\.gh$/i;
+const KNUST_EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@(st\.knust\.edu\.gh|studypair\.knust\.edu\.gh)$/i;
 
 export default function SignIn() {
   const [activeTab, setActiveTab] = useState("signin");
@@ -157,6 +157,45 @@ export default function SignIn() {
                   </>
                 )}
               </button>
+
+              {/* Quick Demo Sign-in */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-outline-variant/30 dark:border-white/10">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant text-center dark:text-white/50">
+                  Quick Demo Accounts
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInForm.setValue("email", "student@st.knust.edu.gh", { shouldValidate: true });
+                      signInForm.setValue("password", "Password123", { shouldValidate: true });
+                    }}
+                    className="rounded-lg border border-student-teal/40 bg-student-teal/10 px-2 py-1.5 text-xs font-semibold text-student-teal hover:bg-student-teal hover:text-white transition-colors dark:border-primary-fixed-dim/40 dark:text-primary-fixed-dim"
+                  >
+                    Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInForm.setValue("email", "tutor@st.knust.edu.gh", { shouldValidate: true });
+                      signInForm.setValue("password", "Password123", { shouldValidate: true });
+                    }}
+                    className="rounded-lg border border-tutor-purple/40 bg-tutor-purple/10 px-2 py-1.5 text-xs font-semibold text-tutor-purple hover:bg-tutor-purple hover:text-white transition-colors dark:border-purple-400/40 dark:text-purple-300"
+                  >
+                    Tutor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      signInForm.setValue("email", "admin@studypair.knust.edu.gh", { shouldValidate: true });
+                      signInForm.setValue("password", "AdminPassword123!", { shouldValidate: true });
+                    }}
+                    className="rounded-lg border border-admin-blue/40 bg-admin-blue/10 px-2 py-1.5 text-xs font-semibold text-admin-blue hover:bg-admin-blue hover:text-white transition-colors dark:border-blue-400/40 dark:text-blue-300"
+                  >
+                    Admin
+                  </button>
+                </div>
+              </div>
             </form>
           )}
 

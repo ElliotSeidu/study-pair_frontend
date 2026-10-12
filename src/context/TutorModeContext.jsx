@@ -4,45 +4,46 @@ import { useNavigate, useLocation } from "react-router-dom";
 const TutorModeContext = createContext(null);
 
 export function TutorModeProvider({ children }) {
-  const [isTutorMode, setIsTutorMode] = useState(() => {
+  const [preferredMode, setPreferredMode] = useState(() => {
     return localStorage.getItem("studypair-mode") === "tutor";
   });
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Route-derived active mode:
+  // If navigating into any tutor route, active mode is tutor mode.
+  // If navigating into any student-specific route, active mode is student mode.
+  // Otherwise (neutral pages like /profile, /notifications), follow the user's preference.
+  const isTutorMode = location.pathname.startsWith("/tutor")
+    ? true
+    : location.pathname.startsWith("/tutors") ||
+      location.pathname.startsWith("/my-requests") ||
+      location.pathname.startsWith("/my-applications")
+    ? false
+    : preferredMode;
 
   useEffect(() => {
     localStorage.setItem("studypair-mode", isTutorMode ? "tutor" : "student");
     document.documentElement.setAttribute("data-mode", isTutorMode ? "tutor" : "student");
   }, [isTutorMode]);
 
-  // If navigating into any tutor route, automatically synchronize mode to tutor
-  useEffect(() => {
-    if (location.pathname.startsWith("/tutor")) {
-      if (!isTutorMode) {
-        setIsTutorMode(true);
-      }
-    }
-  }, [location.pathname, isTutorMode]);
-
   const toggleMode = useCallback(() => {
-    setIsTutorMode((prev) => {
-      const nextMode = !prev;
-      if (nextMode) {
-        navigate("/tutor/requests");
-      } else {
-        navigate("/tutors");
-      }
-      return nextMode;
-    });
-  }, [navigate]);
+    if (isTutorMode) {
+      setPreferredMode(false);
+      navigate("/tutors");
+    } else {
+      setPreferredMode(true);
+      navigate("/tutor/requests");
+    }
+  }, [isTutorMode, navigate]);
 
   const switchToTutorMode = useCallback(() => {
-    setIsTutorMode(true);
+    setPreferredMode(true);
     navigate("/tutor/requests");
   }, [navigate]);
 
   const switchToStudentMode = useCallback(() => {
-    setIsTutorMode(false);
+    setPreferredMode(false);
     navigate("/tutors");
   }, [navigate]);
 

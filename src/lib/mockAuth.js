@@ -12,11 +12,74 @@ function delay(ms = 600) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+const DEFAULT_USERS = [
+  {
+    id: "demo-student-1",
+    fullName: "Kofi Mensah",
+    email: "student@st.knust.edu.gh",
+    referenceId: "20845912",
+    password: "Password123",
+    role: "student",
+    profileComplete: true,
+    course: "BSc Computer Science",
+    level: "300",
+    phone: "0241234567",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "demo-tutor-1",
+    fullName: "Ama Serwaa",
+    email: "tutor@st.knust.edu.gh",
+    referenceId: "20718420",
+    password: "Password123",
+    role: "tutor",
+    profileComplete: true,
+    course: "BSc Mathematics",
+    level: "400",
+    phone: "0509876543",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "demo-admin-1",
+    fullName: "Admin System",
+    email: "admin@studypair.knust.edu.gh",
+    referenceId: "10000001",
+    password: "AdminPassword123!",
+    role: "admin",
+    profileComplete: true,
+    course: "KNUST UITS Operations",
+    level: "Staff",
+    phone: "0322060021",
+    createdAt: new Date().toISOString(),
+  },
+];
+
 function readUsers() {
   try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+    const raw = localStorage.getItem(USERS_KEY);
+    if (!raw) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(DEFAULT_USERS));
+      return DEFAULT_USERS;
+    }
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(DEFAULT_USERS));
+      return DEFAULT_USERS;
+    }
+    // Ensure default demo users exist so they can always be tested
+    let updated = false;
+    DEFAULT_USERS.forEach((def) => {
+      if (!parsed.some((u) => u.email.toLowerCase() === def.email.toLowerCase())) {
+        parsed.push(def);
+        updated = true;
+      }
+    });
+    if (updated) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(parsed));
+    }
+    return parsed;
   } catch {
-    return [];
+    return DEFAULT_USERS;
   }
 }
 

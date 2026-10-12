@@ -14,7 +14,10 @@ const PUBLIC_LINKS = [
 
 export default function PublicLayout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.email?.startsWith("admin@");
+  const isTutor = user?.role === "tutor";
+  const workspacePath = isAdmin ? "/admin" : isTutor ? "/tutor/requests" : "/tutors";
 
   return (
     <div className="flex min-h-screen flex-col bg-surface text-on-surface transition-colors duration-300 dark:bg-dark-bg dark:text-white">
@@ -46,7 +49,7 @@ export default function PublicLayout({ children }) {
             <ThemeToggle />
             {isAuthenticated ? (
               <Link
-                to="/tutors"
+                to={workspacePath}
                 className="flex items-center gap-2 rounded-xl bg-student-teal px-5 py-2 text-sm font-semibold text-white shadow-xs transition-transform hover:scale-105 active:scale-95"
               >
                 Go to Workspace <ArrowRight className="h-4 w-4" />
@@ -96,7 +99,7 @@ export default function PublicLayout({ children }) {
               ))}
               <div className="mt-2 border-t border-outline-variant/30 pt-3">
                 <Link
-                  to={isAuthenticated ? "/tutors" : "/sign-in"}
+                  to={isAuthenticated ? workspacePath : "/sign-in"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-student-teal py-2.5 text-sm font-semibold text-white shadow-xs"
                 >

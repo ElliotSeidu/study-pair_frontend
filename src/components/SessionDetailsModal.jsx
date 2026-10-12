@@ -1,8 +1,24 @@
+import { useEffect } from "react";
 import { X, MapPin, Clock, Users, User, MessageCircle, ExternalLink, BookOpen, AlertCircle } from "lucide-react";
 import WhatsAppButton from "./WhatsAppButton";
 import { formatWhatsAppGroupLink } from "../lib/whatsapp";
 
 export default function SessionDetailsModal({ session, isOpen, onClose }) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !session) return null;
 
   const {
@@ -30,8 +46,9 @@ export default function SessionDetailsModal({ session, isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-up"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs overscroll-contain animate-fade-up"
       onClick={onClose}
+      onTouchMove={(e) => e.target === e.currentTarget && e.preventDefault()}
     >
       <div
         onClick={(e) => e.stopPropagation()}

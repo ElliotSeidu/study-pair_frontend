@@ -72,8 +72,8 @@ export default function AppLayout({ children }) {
               className={({ isActive }) => {
                 const isSelected =
                   isActive ||
-                  (isTutorMode && (location.pathname === "/tutors" || location.pathname === "/tutor") && to === "/tutor/requests") ||
-                  (!isTutorMode && location.pathname === "/" && to === "/tutors");
+                  (isTutorMode && (location.pathname === "/tutor" || location.pathname === "/tutor/") && to === "/tutor/requests") ||
+                  (!isTutorMode && (location.pathname === "/" || location.pathname.startsWith("/tutors")) && to === "/tutors");
 
                 return `flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 active:opacity-70 ${
                   isSelected

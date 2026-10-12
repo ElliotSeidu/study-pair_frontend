@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { LayoutDashboard, Users, ShieldAlert, Settings, Menu, X, Bell, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { LayoutDashboard, Users, ShieldAlert, Settings, Menu, X, Bell, ArrowLeft, LogOut } from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import Logo from "../Logo";
+import SignOutConfirmModal from "../SignOutConfirmModal";
+import { useAuth } from "../../context/AuthContext";
 
 const ADMIN_NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -14,6 +16,15 @@ const ADMIN_NAV = [
 export default function AdminLayout({ children, activeTab = "dashboard", onSelectTab }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    setShowSignOutConfirm(false);
+    logout();
+    navigate("/sign-in");
+  };
 
   const handleTabClick = (tabId) => {
     if (onSelectTab) {
@@ -86,15 +97,24 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
           })}
         </div>
 
-        {/* Bottom Area: Back to Main Application */}
-        <div className="mt-auto flex flex-col gap-3 border-t border-surface-container-highest pt-4 dark:border-white/10 flex-shrink-0">
+        {/* Bottom Area: Back to Main Application & Sign Out */}
+        <div className="mt-auto flex flex-col gap-2 border-t border-surface-container-highest pt-3 dark:border-white/10 flex-shrink-0">
           <Link
             to="/tutors"
-            className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container-high dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container-high dark:border-white/10 dark:bg-white/5 dark:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             Return to StudyPair App
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setShowSignOutConfirm(true)}
+            className="flex items-center justify-center gap-2 rounded-xl border border-error/30 bg-error/5 px-4 py-2 text-xs font-semibold text-error transition-colors hover:bg-error hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
 
           <div className="flex items-center justify-between px-2 pt-1">
             <div className="flex items-center gap-2">
@@ -183,6 +203,12 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
           {children}
         </main>
       </div>
+
+      <SignOutConfirmModal
+        isOpen={showSignOutConfirm}
+        onClose={() => setShowSignOutConfirm(false)}
+        onConfirm={handleSignOut}
+      />
     </div>
   );
 }

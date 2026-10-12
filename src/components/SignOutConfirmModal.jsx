@@ -1,12 +1,29 @@
+import { useEffect } from "react";
 import { LogOut, AlertTriangle, X } from "lucide-react";
 
 export default function SignOutConfirmModal({ isOpen, onClose, onConfirm }) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-up"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs overscroll-contain animate-fade-up"
       onClick={onClose}
+      onTouchMove={(e) => e.target === e.currentTarget && e.preventDefault()}
     >
       <div
         onClick={(e) => e.stopPropagation()}
