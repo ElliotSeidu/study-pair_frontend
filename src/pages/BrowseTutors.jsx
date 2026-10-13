@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Search, ArrowRight, Filter } from "lucide-react";
 import AppLayout from "../components/layout/AppLayout";
 import TutorCard from "../components/TutorCard";
@@ -10,16 +10,8 @@ const LEVELS = ["100", "200", "300", "400"];
 
 export default function BrowseTutors() {
   const { isTutorMode } = useTutorMode();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isTutorMode) {
-      navigate("/tutor/requests", { replace: true });
-    }
-  }, [isTutorMode, navigate]);
-
   const [query, setQuery] = useState("");
-  const [activeLevels, setActiveLevels] = useState(["100"]);
+  const [activeLevels, setActiveLevels] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState("all");
 
   // Extract all unique course tags from tutors
@@ -54,6 +46,10 @@ export default function BrowseTutors() {
       return matchesLevel && matchesCourse && matchesQuery;
     });
   }, [query, activeLevels, selectedCourse]);
+
+  if (isTutorMode) {
+    return <Navigate to="/tutor/requests" replace />;
+  }
 
   return (
     <AppLayout>
@@ -123,17 +119,19 @@ export default function BrowseTutors() {
 
             {/* Course Filter Dropdown */}
             <div className="relative ml-auto flex items-center">
-              <div className="flex items-center gap-2 rounded-xl border border-surface-container-highest bg-surface-container-lowest px-3 py-1.5 text-sm font-medium text-on-surface shadow-sm transition-colors dark:border-white/10 dark:bg-dark-surface dark:text-white">
+              <div className="flex items-center gap-2 rounded-xl border border-surface-container-highest bg-surface-container-lowest px-3 py-2 text-sm font-medium text-on-surface shadow-xs transition-colors hover:border-student-teal focus-within:border-student-teal focus-within:ring-1 focus-within:ring-student-teal dark:border-white/10 dark:bg-dark-surface dark:text-white dark:hover:border-primary-fixed-dim">
                 <Filter className="h-4 w-4 text-student-teal dark:text-primary-fixed-dim flex-shrink-0" />
                 <select
                   value={selectedCourse}
                   onChange={(e) => setSelectedCourse(e.target.value)}
-                  className="bg-transparent text-sm font-medium outline-none cursor-pointer pr-2 text-on-surface dark:text-white"
+                  className="bg-transparent text-sm font-medium outline-none cursor-pointer pr-3 text-on-surface dark:text-white dark:bg-dark-surface appearance-none"
                   aria-label="Filter by course"
                 >
-                  <option value="all" className="dark:bg-dark-surface">All Courses</option>
+                  <option value="all" className="bg-surface text-on-surface dark:bg-dark-surface dark:text-white">
+                    All Courses
+                  </option>
                   {availableCourses.map((c) => (
-                    <option key={c} value={c} className="dark:bg-dark-surface">
+                    <option key={c} value={c} className="bg-surface text-on-surface dark:bg-dark-surface dark:text-white">
                       {c}
                     </option>
                   ))}

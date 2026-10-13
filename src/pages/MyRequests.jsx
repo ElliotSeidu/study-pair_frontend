@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import AppLayout from "../components/layout/AppLayout";
 import RequestCard from "../components/RequestCard";
 import SessionDetailsModal from "../components/SessionDetailsModal";
@@ -14,14 +14,6 @@ const TABS = [
 
 export default function MyRequests() {
   const { isTutorMode } = useTutorMode();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isTutorMode) {
-      navigate("/tutor/requests", { replace: true });
-    }
-  }, [isTutorMode, navigate]);
-
   const [activeTab, setActiveTab] = useState("active");
   const [requests, setRequests] = useState(() => getRequests());
   const [selectedSession, setSelectedSession] = useState(null);
@@ -50,6 +42,10 @@ export default function MyRequests() {
         : r.status === "rejected" || r.status === "cancelled" || r.status === "completed"
     );
   }, [requests, activeTab]);
+
+  if (isTutorMode) {
+    return <Navigate to="/tutor/requests" replace />;
+  }
 
   return (
     <AppLayout>

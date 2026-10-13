@@ -96,7 +96,7 @@ export default function TutorIncomingRequests() {
                 {req.message && (
                   <div className="mt-2 flex items-start gap-2 text-xs italic text-on-surface-variant dark:text-white/60">
                     <MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                    "{req.message}"
+                    “{req.message}”
                   </div>
                 )}
               </div>

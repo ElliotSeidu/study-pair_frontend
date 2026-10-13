@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Plus, Trash2, Clock, Users, X, Loader2 } from "lucide-react";
 import AppLayout from "../../components/layout/AppLayout";
-import { INITIAL_SLOTS } from "../../data/tutorData";
+import { getAvailability, addAvailabilitySlot, deleteAvailabilitySlot } from "../../lib/store";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function TutorMyAvailability() {
-  const [slots, setSlots] = useState(INITIAL_SLOTS);
+  const [slots, setSlots] = useState(() => getAvailability());
   const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    const handleStoreUpdate = () => setSlots(getAvailability());
+    window.addEventListener("studypair_store_updated", handleStoreUpdate);
+    return () => window.removeEventListener("studypair_store_updated", handleStoreUpdate);
+  }, []);
+
   const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { type: "1-on-1" },
   });
@@ -17,26 +24,23 @@ export default function TutorMyAvailability() {
 
   const onAddSlot = async (data) => {
     await new Promise((r) => setTimeout(r, 400));
-    setSlots((prev) => [
-      ...prev,
-      {
-        id: `s${prev.length + 1}`,
-        day: data.day,
-        start: data.start,
-        end: data.end,
-        type: data.type,
-        maxSpots: data.type === "group" ? Number(data.maxSpots) : undefined,
-      },
-    ]);
+    addAvailabilitySlot({
+      day: data.day,
+      start: data.start.trim(),
+      end: data.end.trim(),
+      type: data.type,
+      maxSpots: data.type === "group" ? Number(data.maxSpots) : undefined,
+    });
     reset();
     setShowForm(false);
-    // TODO: POST /tutor/availability
   };
 
   const handleDelete = (id) => {
-    setSlots((prev) => prev.filter((s) => s.id !== id));
-    // TODO: DELETE /tutor/availability/:id
+    deleteAvailabilitySlot(id);
   };
+
+  // Keep the list in weekday order
+  const sortedSlots = [...slots].sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day));
 
   return (
     <AppLayout>
@@ -141,7 +145,7 @@ export default function TutorMyAvailability() {
         )}
 
         <div className="flex max-w-xl flex-col gap-4 pb-8">
-          {slots.map((slot) => (
+          {sortedSlots.map((slot) => (
             <div
               key={slot.id}
               className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm dark:border-white/10 dark:bg-dark-surface"

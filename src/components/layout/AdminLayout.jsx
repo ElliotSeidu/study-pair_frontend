@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, ShieldAlert, Settings, Menu, X, Bell, ArrowLeft, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardCheck,
+  ShieldAlert,
+  Settings,
+  Menu,
+  X,
+  Bell,
+  ArrowLeft,
+  LogOut,
+} from "lucide-react";
 import ThemeToggle from "../ThemeToggle";
 import Logo from "../Logo";
 import SignOutConfirmModal from "../SignOutConfirmModal";
@@ -9,16 +20,32 @@ import { useAuth } from "../../context/AuthContext";
 const ADMIN_NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "users", label: "Users", icon: Users },
-  { id: "reports", label: "Reports", icon: ShieldAlert, badge: true },
+  { id: "applications", label: "Applications", icon: ClipboardCheck },
+  { id: "reports", label: "Reports", icon: ShieldAlert },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-export default function AdminLayout({ children, activeTab = "dashboard", onSelectTab }) {
+const TAB_TITLES = {
+  dashboard: "Dashboard Overview",
+  users: "User Directory & Management",
+  applications: "Tutor Applications",
+  reports: "Flagged Reports & Moderation",
+  settings: "Platform Configuration",
+};
+
+/**
+ * badges: { [tabId]: number }  -> counts shown next to sidebar items
+ * alerts: [{ id, title, body, tab }] -> items shown in the bell dropdown
+ */
+export default function AdminLayout({ children, activeTab = "dashboard", onSelectTab, badges = {}, alerts = [] }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const userInitials = user?.fullName?.split(" ").map((n) => n[0]).join("").slice(0, 2) || "AD";
+  const userName = user?.fullName || "Admin System";
 
   const handleSignOut = () => {
     setShowSignOutConfirm(false);
@@ -31,20 +58,25 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
       onSelectTab(tabId);
     }
     setDrawerOpen(false);
+    setNotifOpen(false);
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-surface text-on-surface transition-colors duration-300 dark:bg-dark-bg dark:text-white flex-col md:flex-row">
-      {drawerOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setDrawerOpen(false)} />
-      )}
+    <div className="flex h-dvh w-full overflow-hidden bg-surface text-on-surface transition-colors duration-300 dark:bg-dark-bg dark:text-white flex-col md:flex-row">
+      <div
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden ${
+          drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setDrawerOpen(false)}
+        aria-hidden={!drawerOpen}
+      />
 
       {/* Non-scrolling Admin Sidebar */}
       <nav
         className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-surface-container-highest
           bg-surface p-4 shadow-lg transition-transform duration-300 ease-in-out
           dark:border-white/10 dark:bg-dark-surface dark:shadow-none
-          md:static md:z-auto md:h-screen md:translate-x-0 md:shadow-none flex-shrink-0
+          md:static md:z-auto md:h-dvh md:translate-x-0 md:shadow-none flex-shrink-0
           ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         {/* Top-left: ONLY Logo & Name */}
@@ -70,8 +102,9 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
 
         {/* Nav Items */}
         <div className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
-          {ADMIN_NAV.map(({ id, label, icon: Icon, badge }) => {
+          {ADMIN_NAV.map(({ id, label, icon: Icon }) => {
             const isActive = activeTab === id;
+            const count = badges[id] || 0;
             return (
               <button
                 key={id}
@@ -87,9 +120,9 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
                   <Icon className="h-5 w-5 flex-shrink-0" />
                   <span className="text-base font-semibold">{label}</span>
                 </div>
-                {badge && (
-                  <span className="flex h-5 items-center justify-center rounded-full bg-status-rejected/15 px-2 text-xs font-bold text-status-rejected">
-                    3
+                {count > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-status-rejected/15 px-2 text-xs font-bold text-status-rejected">
+                    {count}
                   </span>
                 )}
               </button>
@@ -117,13 +150,13 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
           </button>
 
           <div className="flex items-center justify-between px-2 pt-1">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-admin-blue/20 font-bold text-xs text-admin-blue">
-                KN
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-admin-blue/20 font-bold text-xs text-admin-blue">
+                {userInitials}
               </div>
-              <span className="text-xs text-on-surface-variant dark:text-white/50">Admin System</span>
+              <span className="text-xs text-on-surface-variant dark:text-white/50 truncate">{userName}</span>
             </div>
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-status-confirmed">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-status-confirmed flex-shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-status-confirmed animate-pulse" /> Live
             </span>
           </div>
@@ -131,7 +164,7 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
       </nav>
 
       {/* Main Content Area */}
-      <div className="flex h-screen flex-1 flex-col overflow-hidden">
+      <div className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header */}
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-surface-container-highest bg-surface px-4 dark:border-white/10 dark:bg-dark-surface md:px-8 flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -146,10 +179,7 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
               <Logo size="sm" clickable={false} />
             </div>
             <span className="hidden font-display text-lg font-bold text-on-surface dark:text-white md:block">
-              {activeTab === "dashboard" && "Dashboard Overview"}
-              {activeTab === "users" && "User Directory & Management"}
-              {activeTab === "reports" && "Flagged Reports & Moderation"}
-              {activeTab === "settings" && "Platform Configuration"}
+              {TAB_TITLES[activeTab]}
             </span>
           </div>
 
@@ -162,38 +192,66 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
                 type="button"
                 onClick={() => setNotifOpen((v) => !v)}
                 aria-label="Admin alerts"
+                aria-expanded={notifOpen}
                 className="relative rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container dark:text-white/60"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-status-rejected ring-2 ring-surface dark:ring-dark-surface" />
+                {alerts.length > 0 && (
+                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-status-rejected ring-2 ring-surface dark:ring-dark-surface" />
+                )}
               </button>
 
               {notifOpen && (
-                <div className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-outline-variant bg-surface-container-lowest p-4 shadow-xl dark:border-white/10 dark:bg-dark-surface animate-fade-up">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-on-surface dark:text-white">
-                      System Alerts
-                    </span>
-                    <span className="text-[11px] text-admin-blue cursor-pointer" onClick={() => setNotifOpen(false)}>
-                      Dismiss
-                    </span>
-                  </div>
-                  <div className="space-y-2 text-xs">
-                    <div className="rounded-lg bg-surface-container-low p-2.5 dark:bg-white/5">
-                      <p className="font-semibold text-on-surface dark:text-white">3 Pending Reports</p>
-                      <p className="text-on-surface-variant dark:text-white/60">New reports require admin review.</p>
+                <>
+                  {/* Click-outside catcher */}
+                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} aria-hidden="true" />
+
+                  {/* Mobile: pinned under the header and inset from both screen edges.
+                      Desktop: anchored to the bell. */}
+                  <div
+                    className="fixed inset-x-3 top-[4.25rem] z-50 max-h-[calc(100dvh-5.5rem)] overflow-y-auto rounded-2xl border border-outline-variant
+                      bg-surface-container-lowest p-4 shadow-xl animate-fade-up dark:border-white/10 dark:bg-dark-surface
+                      md:absolute md:inset-x-auto md:right-0 md:top-12 md:max-h-96 md:w-80"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-on-surface dark:text-white">
+                        System Alerts
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setNotifOpen(false)}
+                        className="text-[11px] font-semibold text-admin-blue dark:text-blue-300"
+                      >
+                        Dismiss
+                      </button>
                     </div>
-                    <div className="rounded-lg bg-surface-container-low p-2.5 dark:bg-white/5">
-                      <p className="font-semibold text-on-surface dark:text-white">Database Backup Completed</p>
-                      <p className="text-on-surface-variant dark:text-white/60">Automated snapshot synced 1h ago.</p>
-                    </div>
+
+                    {alerts.length > 0 ? (
+                      <div className="space-y-2 text-xs">
+                        {alerts.map((alert) => (
+                          <button
+                            key={alert.id}
+                            type="button"
+                            onClick={() => handleTabClick(alert.tab)}
+                            className="block w-full rounded-lg bg-surface-container-low p-3 text-left transition-colors hover:bg-surface-container-high dark:bg-white/5 dark:hover:bg-white/10"
+                          >
+                            <p className="font-semibold text-on-surface dark:text-white">{alert.title}</p>
+                            <p className="mt-0.5 text-on-surface-variant dark:text-white/60">{alert.body}</p>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="py-4 text-center text-xs text-on-surface-variant dark:text-white/50">
+                        You're all caught up.
+                      </p>
+                    )}
                   </div>
-                </div>
+                </>
               )}
             </div>
 
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-admin-blue text-sm font-bold text-white shadow-xs">
-              AD
+              {userInitials}
             </div>
           </div>
         </header>

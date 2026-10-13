@@ -38,6 +38,7 @@ export default function Profile() {
     setSaved(false);
     await updateProfile(data);
     setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
   };
 
   const handleConfirmSignOut = () => {
