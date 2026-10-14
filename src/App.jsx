@@ -4,8 +4,35 @@ import { AuthProvider } from "./context/AuthContext";
 import { TutorModeProvider } from "./context/TutorModeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import { useAuth } from "./context/AuthContext";
 
 import Landing from "./pages/Landing";
+
+/**
+ * Smart root redirect:
+ * - Installed PWA (standalone) always goes to /sign-in
+ * - Browser: authenticated users go to their dashboard, unauthenticated to /sign-in
+ * The landing page remains accessible at /landing for marketing purposes.
+ */
+function RootRedirect() {
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+    const { isAuthenticated, user } = useAuth();
+
+    if (isStandalone || !isAuthenticated) {
+        return <Navigate to="/sign-in" replace />;
+    }
+
+    const isAdmin = user?.role === "admin";
+    const isTutor = user?.role === "tutor";
+    return (
+        <Navigate
+            to={isAdmin ? "/admin" : isTutor ? "/tutor/requests" : "/tutors"}
+            replace
+        />
+    );
+}
 import SignIn from "./pages/SignIn";
 import CompleteProfile from "./pages/CompleteProfile";
 import BrowseTutors from "./pages/BrowseTutors";
@@ -35,7 +62,8 @@ export default function App() {
                 <AuthProvider>
                     <TutorModeProvider>
                         <Routes>
-                            <Route path="/" element={<Landing />} />
+                            <Route path="/" element={<RootRedirect />} />
+                            <Route path="/landing" element={<Landing />} />
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/contact" element={<Contact />} />
