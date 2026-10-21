@@ -44,7 +44,7 @@ export default function MyRequests() {
   }, [requests, activeTab]);
 
   if (isTutorMode) {
-    return <Navigate to="/tutor/requests" replace />;
+    return <Navigate to="/app/tutor/requests" replace />;
   }
 
   return (

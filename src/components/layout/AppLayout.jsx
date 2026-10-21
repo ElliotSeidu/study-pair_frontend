@@ -21,19 +21,19 @@ import { usePwaInstall } from "../../lib/pwa";
 import Logo from "../Logo";
 
 const STUDENT_NAV = [
-  { to: "/tutors", label: "Browse", icon: Search },
-  { to: "/my-requests", label: "My Requests", icon: ListTodo },
-  { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/app/tutors", label: "Browse", icon: Search },
+  { to: "/app/my-requests", label: "My Requests", icon: ListTodo },
+  { to: "/app/notifications", label: "Notifications", icon: Bell },
+  { to: "/app/profile", label: "Profile", icon: User },
 ];
 
 const TUTOR_NAV = [
-  { to: "/tutor/requests", label: "Incoming Requests", icon: Inbox },
-  { to: "/tutor/courses", label: "My Courses", icon: BookMarked },
-  { to: "/tutor/applications", label: "My Applications", icon: ClipboardCheck },
-  { to: "/tutor/availability", label: "My Availability", icon: CalendarClock },
-  { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/app/tutor/requests", label: "Incoming Requests", icon: Inbox },
+  { to: "/app/tutor/courses", label: "My Courses", icon: BookMarked },
+  { to: "/app/tutor/applications", label: "My Applications", icon: ClipboardCheck },
+  { to: "/app/tutor/availability", label: "My Availability", icon: CalendarClock },
+  { to: "/app/notifications", label: "Notifications", icon: Bell },
+  { to: "/app/profile", label: "Profile", icon: User },
 ];
 
 export default function AppLayout({ children }) {
@@ -110,7 +110,7 @@ export default function AppLayout({ children }) {
 
                     {isAdmin && (
                         <NavLink
-                            to="/admin"
+                            to="/app/admin"
                             onClick={() => setDrawerOpen(false)}
                             className="mt-2 flex items-center gap-4 rounded-xl border border-admin-blue/30 bg-admin-blue/10 px-4 py-3 text-sm font-semibold text-admin-blue transition-colors hover:bg-admin-blue hover:text-white dark:border-blue-400/30 dark:bg-admin-blue/20 dark:text-blue-300"
                         >

@@ -10,15 +10,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 const TutorModeContext = createContext(null);
 
 // Returns "tutor" | "student" for mode-specific routes, or null for neutral
-// routes (/profile, /notifications) that should follow the saved preference.
-// NOTE: "/tutors" (student browse) must NOT match the tutor branch.
+// routes (/app/profile, /app/notifications) that should follow the saved preference.
+// NOTE: "/app/tutors" (student browse) must NOT match the tutor branch.
 function getRouteMode(pathname) {
-    if (pathname === "/tutor" || pathname.startsWith("/tutor/")) return "tutor";
+    // Tutor-mode routes
+    if (pathname === "/app/tutor" || pathname.startsWith("/app/tutor/")) return "tutor";
 
+    // Student-mode routes
     if (
-        pathname === "/tutors" ||
-        pathname.startsWith("/tutors/") ||
-        pathname.startsWith("/my-requests")
+        pathname === "/app/tutors" ||
+        pathname.startsWith("/app/tutors/") ||
+        pathname.startsWith("/app/my-requests")
     ) {
         return "student";
     }
@@ -59,12 +61,12 @@ export function TutorModeProvider({ children }) {
 
     const switchToTutorMode = useCallback(() => {
         setPreferredMode(true);
-        navigate("/tutor/requests");
+        navigate("/app/tutor/requests");
     }, [navigate]);
 
     const switchToStudentMode = useCallback(() => {
         setPreferredMode(false);
-        navigate("/tutors");
+        navigate("/app/tutors");
     }, [navigate]);
 
     const toggleMode = useCallback(() => {
@@ -73,7 +75,7 @@ export function TutorModeProvider({ children }) {
             if (isTutorMode) switchToStudentMode();
             else switchToTutorMode();
         } else {
-            // On a neutral page (/profile, /notifications): flip in place
+            // On a neutral page (/app/profile, /app/notifications): flip in place
             setPreferredMode((prev) => !prev);
         }
     }, [routeMode, isTutorMode, switchToStudentMode, switchToTutorMode]);

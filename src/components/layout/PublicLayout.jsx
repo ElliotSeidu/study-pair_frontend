@@ -17,7 +17,7 @@ export default function PublicLayout({ children }) {
   const { isAuthenticated, user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.email?.startsWith("admin@");
   const isTutor = user?.role === "tutor";
-  const workspacePath = isAdmin ? "/admin" : isTutor ? "/tutor/requests" : "/tutors";
+  const workspacePath = isAdmin ? "/app/admin" : isTutor ? "/app/tutor/requests" : "/app/tutors";
 
   return (
     <div className="flex min-h-screen flex-col bg-surface text-on-surface transition-colors duration-300 dark:bg-dark-bg dark:text-white">

@@ -48,7 +48,7 @@ export default function BrowseTutors() {
   }, [query, activeLevels, selectedCourse]);
 
   if (isTutorMode) {
-    return <Navigate to="/tutor/requests" replace />;
+    return <Navigate to="/app/tutor/requests" replace />;
   }
 
   return (

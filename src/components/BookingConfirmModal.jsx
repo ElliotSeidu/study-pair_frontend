@@ -60,7 +60,7 @@ export default function BookingConfirmModal({ booking, onClose }) {
               <DetailRow icon={Clock} label="Time" value={time} />
 
               <Link
-                to="/my-requests"
+                to="/app/my-requests"
                 onClick={onClose}
                 className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-student-teal px-6 py-3.5 font-medium
                   text-white shadow-sm transition-all duration-150 hover:bg-primary active:scale-95"
@@ -80,7 +80,7 @@ export default function BookingConfirmModal({ booking, onClose }) {
             </p>
 
             <Link
-              to="/my-requests"
+              to="/app/my-requests"
               onClick={onClose}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-student-teal px-6 py-3.5 font-medium
                 text-white shadow-sm transition-all duration-150 hover:bg-primary active:scale-95"

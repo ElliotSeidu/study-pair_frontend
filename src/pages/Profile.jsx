@@ -43,8 +43,7 @@ export default function Profile() {
 
   const handleConfirmSignOut = () => {
     setShowSignOutConfirm(false);
-    logout();
-    navigate("/sign-in");
+    logout(); // logout() now navigates to /sign-in automatically
   };
 
   return (

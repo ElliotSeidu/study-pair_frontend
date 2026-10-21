@@ -49,8 +49,7 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
 
   const handleSignOut = () => {
     setShowSignOutConfirm(false);
-    logout();
-    navigate("/sign-in");
+    logout(); // logout() now navigates to /sign-in automatically
   };
 
   const handleTabClick = (tabId) => {
@@ -133,7 +132,7 @@ export default function AdminLayout({ children, activeTab = "dashboard", onSelec
         {/* Bottom Area: Back to Main Application & Sign Out */}
         <div className="mt-auto flex flex-col gap-2 border-t border-surface-container-highest pt-3 dark:border-white/10 flex-shrink-0">
           <Link
-            to="/tutors"
+            to="/app/tutors"
             className="flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low px-4 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container-high dark:border-white/10 dark:bg-white/5 dark:text-white"
           >
             <ArrowLeft className="h-4 w-4" />

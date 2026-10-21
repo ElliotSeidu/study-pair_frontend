@@ -2,7 +2,7 @@
   "name": "StudyPair",
   "short_name": "StudyPair",
   "description": "Find peer tutors, book study sessions, and excel in your courses at KNUST.",
-  "start_url": "/sign-in",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#0B0B0C",
   "theme_color": "#0E7490",

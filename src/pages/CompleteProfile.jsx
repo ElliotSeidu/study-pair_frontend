@@ -24,7 +24,7 @@ export default function CompleteProfile() {
 
   const onSubmit = async (data) => {
     await updateProfile(data);
-    navigate("/tutors");
+    navigate("/app/tutors");
   };
 
   return (

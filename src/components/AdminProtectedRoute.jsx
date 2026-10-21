@@ -42,7 +42,7 @@ export default function AdminProtectedRoute({ children }) {
   const isAdmin = user?.role === "admin" || user?.email?.startsWith("admin@");
 
   if (!isAdmin && import.meta.env.PROD) {
-    return <Navigate to="/tutors" replace />;
+    return <Navigate to="/app/tutors" replace />;
   }
 
   return children;

@@ -43,7 +43,7 @@ export default function NotFound() {
             <ArrowLeft className="h-4 w-4" /> Go Back
           </button>
           <Link
-            to={isAuthenticated ? "/tutors" : "/"}
+            to={isAuthenticated ? "/app/tutors" : "/"}
             className="flex items-center gap-2 rounded-xl bg-student-teal px-5 py-3 text-sm font-semibold text-white shadow-xs transition-transform hover:bg-primary active:scale-95"
           >
             <Home className="h-4 w-4" /> {isAuthenticated ? "Go to Workspace" : "Return Home"}

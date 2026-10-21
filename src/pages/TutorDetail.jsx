@@ -20,7 +20,7 @@ export default function TutorDetail() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-surface text-on-surface dark:bg-dark-bg dark:text-white">
         <p className="text-lg font-medium">Tutor not found.</p>
-        <Link to="/tutors" className="text-student-teal hover:underline dark:text-primary-fixed-dim">
+        <Link to="/app/tutors" className="text-student-teal hover:underline dark:text-primary-fixed-dim">
           Back to Browse
         </Link>
       </div>

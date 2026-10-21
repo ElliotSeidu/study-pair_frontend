@@ -204,7 +204,7 @@ export default function TutorMyCourses() {
                                 <div className="rounded-xl border border-dashed border-outline-variant p-4 text-sm text-on-surface-variant dark:border-white/10 dark:text-white/60">
                                     No approved courses available to set up.{" "}
                                     <Link
-                                        to="/tutor/applications"
+                                        to="/app/tutor/applications"
                                         className="font-semibold text-tutor-purple underline dark:text-purple-300"
                                     >
                                         Apply to teach a course

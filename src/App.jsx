@@ -7,32 +7,6 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 
 import Landing from "./pages/Landing";
-
-/**
- * Smart root redirect:
- * - Installed PWA (standalone) always goes to /sign-in
- * - Browser: authenticated users go to their dashboard, unauthenticated to /sign-in
- * The landing page remains accessible at /landing for marketing purposes.
- */
-function RootRedirect() {
-    const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true;
-    const { isAuthenticated, user } = useAuth();
-
-    if (isStandalone || !isAuthenticated) {
-        return <Navigate to="/sign-in" replace />;
-    }
-
-    const isAdmin = user?.role === "admin";
-    const isTutor = user?.role === "tutor";
-    return (
-        <Navigate
-            to={isAdmin ? "/admin" : isTutor ? "/tutor/requests" : "/tutors"}
-            replace
-        />
-    );
-}
 import SignIn from "./pages/SignIn";
 import CompleteProfile from "./pages/CompleteProfile";
 import BrowseTutors from "./pages/BrowseTutors";
@@ -46,13 +20,56 @@ import Contact from "./pages/Contact";
 import Guidelines from "./pages/Guidelines";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
-
 import TutorMyCourses from "./pages/tutor/TutorMyCourses";
 import TutorMyAvailability from "./pages/tutor/TutorMyAvailability";
 import TutorIncomingRequests from "./pages/tutor/TutorIncomingRequests";
 import AdminDashboard from "./pages/AdminDashboard";
-
 import ScrollToTop from "./components/ScrollToTop";
+
+/**
+ * Smart root redirect:
+ * - Installed PWA (standalone) always goes to /sign-in
+ * - Browser: authenticated users go to their /app dashboard, unauthenticated to /sign-in
+ * The landing page remains accessible at /landing for marketing purposes.
+ */
+function RootRedirect() {
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+    const { isAuthenticated, user } = useAuth();
+
+    if (isStandalone) {
+        if (!isAuthenticated || !user) {
+            return <Navigate to="/sign-in" replace />;
+        }
+        const isAdmin = user?.role === "admin" || user?.email?.startsWith("admin@");
+        const isTutor = user?.role === "tutor";
+        return (
+            <Navigate
+                to={isAdmin ? "/app/admin" : isTutor ? "/app/tutor/requests" : "/app/tutors"}
+                replace
+            />
+        );
+    }
+
+    // In normal web browser, show the marketing landing page
+    return <Landing />;
+}
+
+/**
+ * Redirects to the correct dashboard inside /app based on the user's role.
+ */
+function AppIndexRedirect() {
+    const { user } = useAuth();
+    const isAdmin = user?.role === "admin";
+    const isTutor = user?.role === "tutor";
+    return (
+        <Navigate
+            to={isAdmin ? "/app/admin" : isTutor ? "/app/tutor/requests" : "/app/tutors"}
+            replace
+        />
+    );
+}
 
 export default function App() {
     return (
@@ -62,19 +79,29 @@ export default function App() {
                 <AuthProvider>
                     <TutorModeProvider>
                         <Routes>
+                            {/* ── Public / marketing routes ────────────────── */}
                             <Route path="/" element={<RootRedirect />} />
                             <Route path="/landing" element={<Landing />} />
                             <Route path="/sign-in" element={<SignIn />} />
+                            <Route path="/app/sign-in" element={<SignIn />} />
+                            <Route path="/app/login" element={<Navigate to="/sign-in" replace />} />
                             <Route path="/about" element={<About />} />
                             <Route path="/contact" element={<Contact />} />
-                            <Route
-                                path="/guidelines"
-                                element={<Guidelines />}
-                            />
+                            <Route path="/guidelines" element={<Guidelines />} />
                             <Route path="/privacy" element={<Privacy />} />
 
+                            {/* ── Protected app shell — all under /app/* ────── */}
                             <Route
-                                path="/complete-profile"
+                                path="/app"
+                                element={
+                                    <ProtectedRoute>
+                                        <AppIndexRedirect />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/app/complete-profile"
                                 element={
                                     <ProtectedRoute>
                                         <CompleteProfile />
@@ -82,7 +109,7 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/tutors"
+                                path="/app/tutors"
                                 element={
                                     <ProtectedRoute>
                                         <BrowseTutors />
@@ -90,7 +117,7 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/tutors/:id"
+                                path="/app/tutors/:id"
                                 element={
                                     <ProtectedRoute>
                                         <TutorDetail />
@@ -98,24 +125,26 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/my-requests"
+                                path="/app/my-requests"
                                 element={
                                     <ProtectedRoute>
                                         <MyRequests />
                                     </ProtectedRoute>
                                 }
                             />
+
+                            {/* Legacy redirect for old bookmarks */}
                             <Route
-                                path="/my-applications"
-                                element={
-                                    <Navigate
-                                        to="/tutor/applications"
-                                        replace
-                                    />
-                                }
+                                path="/app/my-applications"
+                                element={<Navigate to="/app/tutor/applications" replace />}
                             />
                             <Route
-                                path="/tutor/applications"
+                                path="/app/tutor"
+                                element={<Navigate to="/app/tutor/requests" replace />}
+                            />
+
+                            <Route
+                                path="/app/tutor/applications"
                                 element={
                                     <ProtectedRoute>
                                         <TutorMyApplications />
@@ -123,7 +152,7 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/notifications"
+                                path="/app/notifications"
                                 element={
                                     <ProtectedRoute>
                                         <Notifications />
@@ -131,22 +160,15 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/profile"
+                                path="/app/profile"
                                 element={
                                     <ProtectedRoute>
                                         <Profile />
                                     </ProtectedRoute>
                                 }
                             />
-
                             <Route
-                                path="/tutor"
-                                element={
-                                    <Navigate to="/tutor/requests" replace />
-                                }
-                            />
-                            <Route
-                                path="/tutor/courses"
+                                path="/app/tutor/courses"
                                 element={
                                     <ProtectedRoute>
                                         <TutorMyCourses />
@@ -154,7 +176,7 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/tutor/availability"
+                                path="/app/tutor/availability"
                                 element={
                                     <ProtectedRoute>
                                         <TutorMyAvailability />
@@ -162,7 +184,7 @@ export default function App() {
                                 }
                             />
                             <Route
-                                path="/tutor/requests"
+                                path="/app/tutor/requests"
                                 element={
                                     <ProtectedRoute>
                                         <TutorIncomingRequests />
@@ -170,9 +192,9 @@ export default function App() {
                                 }
                             />
 
-                            {/* Protected administrative control plane */}
+                            {/* Admin control plane */}
                             <Route
-                                path="/admin"
+                                path="/app/admin"
                                 element={
                                     <AdminProtectedRoute>
                                         <AdminDashboard />
@@ -180,7 +202,22 @@ export default function App() {
                                 }
                             />
 
-                            {/* 404 Catch-All Route */}
+                            {/* ── Legacy bare routes → redirect into /app ───── */}
+                            <Route path="/complete-profile" element={<Navigate to="/app/complete-profile" replace />} />
+                            <Route path="/tutors" element={<Navigate to="/app/tutors" replace />} />
+                            <Route path="/tutors/:id" element={<Navigate to="/app/tutors/:id" replace />} />
+                            <Route path="/my-requests" element={<Navigate to="/app/my-requests" replace />} />
+                            <Route path="/my-applications" element={<Navigate to="/app/tutor/applications" replace />} />
+                            <Route path="/tutor" element={<Navigate to="/app/tutor/requests" replace />} />
+                            <Route path="/tutor/applications" element={<Navigate to="/app/tutor/applications" replace />} />
+                            <Route path="/tutor/courses" element={<Navigate to="/app/tutor/courses" replace />} />
+                            <Route path="/tutor/availability" element={<Navigate to="/app/tutor/availability" replace />} />
+                            <Route path="/tutor/requests" element={<Navigate to="/app/tutor/requests" replace />} />
+                            <Route path="/notifications" element={<Navigate to="/app/notifications" replace />} />
+                            <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
+                            <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
+
+                            {/* 404 Catch-All */}
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </TutorModeProvider>

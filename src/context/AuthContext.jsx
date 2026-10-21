@@ -1,10 +1,12 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { getCurrentUser, mockSignIn, mockSignUp, mockUpdateProfile, clearSession } from "../lib/mockAuth";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => getCurrentUser());
+  const navigate = useNavigate();
 
   const login = async (credentials) => {
     const loggedInUser = await mockSignIn(credentials);
@@ -24,10 +26,11 @@ export function AuthProvider({ children }) {
     return updated;
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearSession();
     setUser(null);
-  };
+    navigate("/sign-in", { replace: true });
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading: false, login, signup, updateProfile, logout }}>

@@ -219,7 +219,7 @@ export default function TutorMyApplications() {
 
                 {app.status === "approved" && !listedCodes.has(normalize(app.code)) && (
                   <Link
-                    to="/tutor/courses"
+                    to="/app/tutor/courses"
                     className="flex items-center gap-1.5 self-start border-t border-outline-variant/50 pt-3 text-sm font-semibold text-tutor-purple hover:underline dark:border-white/10 dark:text-purple-300"
                   >
                     Set up this course <ArrowRight className="h-4 w-4" />

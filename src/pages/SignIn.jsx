@@ -29,7 +29,7 @@ export default function SignIn() {
                 loggedInUser?.role === "admin" ||
                 loggedInUser?.email?.startsWith("admin@")
             ) {
-                navigate("/admin");
+                navigate("/app/admin");
             } else if (loggedInUser?.role === "tutor") {
                 switchToTutorMode();
             } else {
@@ -46,7 +46,7 @@ export default function SignIn() {
     const onSignUp = async (data) => {
         try {
             await signup(data);
-            navigate("/complete-profile");
+            navigate("/app/complete-profile");
         } catch (err) {
             signUpForm.setError(err.field || "email", {
                 type: "manual",

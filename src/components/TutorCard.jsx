@@ -16,7 +16,7 @@ export default function TutorCard({ tutor }) {
       className="flex flex-col overflow-hidden rounded-2xl border border-surface-container-highest bg-surface-container-lowest
         shadow-sm transition-shadow duration-300 hover:shadow-lg dark:border-white/10 dark:bg-dark-surface"
     >
-      <Link to={`/tutors/${id}`} className="flex flex-grow flex-col items-center p-6">
+      <Link to={`/app/tutors/${id}`} className="flex flex-grow flex-col items-center p-6">
         <div className="relative mb-4 h-24 w-24">
           <div
             className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-surface text-2xl
@@ -53,7 +53,7 @@ export default function TutorCard({ tutor }) {
           {slotsLabel}
         </div>
         <Link
-          to={`/tutors/${id}`}
+          to={`/app/tutors/${id}`}
           className={
             slotsState === "full"
               ? "rounded-lg border border-student-teal px-4 py-2 text-sm font-semibold text-student-teal transition-colors hover:bg-surface-container-low dark:border-primary-fixed-dim dark:text-primary-fixed-dim dark:hover:bg-white/5"
