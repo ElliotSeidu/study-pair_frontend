@@ -1,9 +1,9 @@
 /**
  * StudyPair Progressive Web App Service Worker
- * Handles offline caching, push notifications, and background notification clicks.
+ * Handles offline caching, SPA navigation fallbacks, push notifications, and background notification clicks.
  */
 
-const CACHE_NAME = "studypair-cache-v1";
+const CACHE_NAME = "studypair-cache-v2";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -36,7 +36,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: Stale-while-revalidate strategy for navigation and assets
+// Fetch: Handles SPA navigation requests and asset caching
 self.addEventListener("fetch", (event) => {
   // Only handle GET requests and skip chrome-extension requests
   if (event.request.method !== "GET" || !event.request.url.startsWith("http")) {
@@ -54,6 +54,24 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // SPA Navigation requests: network-first with /index.html cache fallback
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return caches.match("/index.html");
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match("/index.html");
+        })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -78,7 +96,7 @@ self.addEventListener("push", (event) => {
     body: "You have an update regarding your study sessions.",
     icon: "/icon.svg",
     badge: "/favicon.svg",
-    data: { url: "/notifications" },
+    data: { url: "/app/notifications" },
   };
 
   if (event.data) {
@@ -94,7 +112,7 @@ self.addEventListener("push", (event) => {
     icon: data.icon || "/icon.svg",
     badge: data.badge || "/favicon.svg",
     vibrate: [100, 50, 100],
-    data: data.data || { url: "/notifications" },
+    data: data.data || { url: "/app/notifications" },
   };
 
   event.waitUntil(
@@ -105,7 +123,7 @@ self.addEventListener("push", (event) => {
 // Notification Click: Navigate to target page when clicked
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/notifications";
+  const targetUrl = (event.notification.data && event.notification.data.url) || "/app/notifications";
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
